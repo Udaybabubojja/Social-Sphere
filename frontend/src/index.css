@@ -1,0 +1,12 @@
+.icon-container {
+    padding: 0.5rem;
+    /* Tailwind gray-400 */
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.icon-container:hover {
+    background-color: #e1e4e8;
+    /* Tailwind gray-200 */
+}

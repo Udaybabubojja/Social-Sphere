@@ -1,0 +1,16 @@
+/* eslint-disable no-unused-vars */
+import { Button, Flex } from '@chakra-ui/react'
+import React from 'react'
+import { Link } from 'react-router-dom'
+
+const HomePage = () => {
+  return (
+    <Link to={"/uday"}>
+        <Flex w={"full"} justifyContent={"center"}>
+            <Button mx={"auto"} >Visit profile page</Button>
+        </Flex>
+    </Link>
+  )
+}
+
+export default HomePage
