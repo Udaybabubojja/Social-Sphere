@@ -11,6 +11,7 @@ import {
   Menu, Portal, MenuList, MenuItem, useToast
 } from "@chakra-ui/react";
 import { CgMoreO } from "react-icons/cg";
+import { useNavigate } from "react-router";
 const UserHeader = () => {
     const toast = useToast()
     const shareURL = ()=>{
@@ -25,11 +26,16 @@ const UserHeader = () => {
             })
         })
     }
+    const username = "uday_13"
+    const navigate = useNavigate();
+    const editProfile = () =>{
+        navigate(`/${username}/update`)
+    }
     return (
         <VStack gap={4} alignItems={"start"}>
         <Flex justifyContent={"space-between"} w={"full"}>
             <Box>
-            <Text fontSize={"2xl"}>Uday_13</Text>
+            <Text fontSize={"2xl"}>{username}</Text>
             <Flex gap={3} alignItems={"center"}>
                 <Text fontSize={"small"}>Bojja Uday Babu</Text>
             </Flex>
@@ -67,7 +73,7 @@ const UserHeader = () => {
                 <Portal>
                     <MenuList>
                     <MenuItem onClick={shareURL}>Share Profile</MenuItem>
-                    <MenuItem>Edit Profile</MenuItem>
+                    <MenuItem onClick={editProfile}>Edit Profile</MenuItem>
                     </MenuList>
                 </Portal>
                 </Menu>

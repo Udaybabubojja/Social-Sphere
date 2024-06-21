@@ -2,6 +2,7 @@
 import User from '../models/userModel.js';
 import bcrypt from 'bcrypt';
 import { generateTokenAndSetCookie } from '../utils/helpers/generateTokenAndSetCookie.js';
+import {v2 as cloudinary} from "cloudinary"
 const signupUser = async (req, res) => {
     try {
         const { username, name, profilePic, followers, following, bio, email, password } = req.body;
@@ -108,20 +109,27 @@ const followAndUnfollow = async (req, res)=>{
 }
 
 const updateUser = async(req, res)=>{
-    const { name, email, username, password, profilePic, bio } = req.body;
+    const { name, email, username, password, bio } = req.body;
     const userId = req.user._id;
+    let {profilePic} = req.body;
     try {
         let user = await User.findById(userId); // Add 'await' here
         if (!user) return res.status(400).json({ message: "User not found" });
-        if(req.param.id !== userId.toString()) return res.status(400).json({ message: "updation of other's username is not possible" });
+        console.log(req.params.id, userId.toString())
+        if(req.params.id !== userId.toString()) return res.status(400).json({ message: "updation of other's username is not possible" });
         if (password) {
             const salt = await bcrypt.genSalt(10);
             const hashPswd = await bcrypt.hash(password, salt);
             user.password = hashPswd;
         }
-
+        if(profilePic){
+            if(user.profilePic){
+                await cloudinary.uploader.destroy(user.profilePic.split("/").pop().split(".")[0])
+            }
+            const uploadedResponse = await cloudinary.uploader.upload(profilePic);
+            profilePic = uploadedResponse.secure_url;
+        }
         user.name = name || user.name;
-
         if (user.username !== username) {
             let newUser = await User.findOne({ username });
             if (newUser) return res.status(400).json({ message: "Username already exists" });
