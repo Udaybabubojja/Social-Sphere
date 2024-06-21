@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { CgMoreO } from "react-icons/cg";
 import { useNavigate } from "react-router";
-const UserHeader = () => {
+const UserHeader = ({user}) => {
     const toast = useToast()
     const shareURL = ()=>{
         const currentURL = window.location.href;
@@ -26,69 +26,76 @@ const UserHeader = () => {
             })
         })
     }
-    const username = "uday_13"
     const navigate = useNavigate();
     const editProfile = () =>{
-        navigate(`/${username}/update`)
+        navigate(`/update`)
     }
     return (
-        <VStack gap={4} alignItems={"start"}>
-        <Flex justifyContent={"space-between"} w={"full"}>
-            <Box>
-            <Text fontSize={"2xl"}>{username}</Text>
-            <Flex gap={3} alignItems={"center"}>
-                <Text fontSize={"small"}>Bojja Uday Babu</Text>
-            </Flex>
-            {/* <a href="tel:+919014698906">Hello world</a> */}
-            </Box>
-            <Box>
-            <Avatar name="Uday Babu" src="/vite.svg" size={
-                {
-                    base:"md",
-                    md:"xl"
-                }
-            } />
-            </Box>
+        <Box
+      w="full"
+      p={5}
+      boxShadow="md"
+      borderRadius="md"
+      bgGradient="linear(to-r, teal.500, green.500)"
+      color="white"
+    >
+      <Flex justifyContent="space-between" alignItems="center" w="full">
+        <Box>
+          <Text fontSize="2xl" fontWeight="bold">{user.username}</Text>
+          <Flex gap={3} alignItems="center">
+            <Text fontSize="small">{user.name}</Text>
+          </Flex>
+          {/* <a href="tel:+919014698906">Hello world</a> */}
+        </Box>
+        <Box>
+          <Avatar
+            name={user.name}
+            src={user.profilePic}
+            size={{
+              base: "md",
+              md: "xl",
+            }}
+            border="2px"
+            borderColor="white"
+          />
+        </Box>
+      </Flex>
+      <Text mt={3} fontStyle="italic">{user.bio}</Text>
+      <Flex w="full" justifyContent="space-between" mt={5}>
+        <Flex gap={2} alignItems="center">
+          <Text color="gray.100" fontSize="xs">
+            {user.followers.length} followers
+          </Text>
+          <Box
+            width={1}
+            height={1}
+            borderRadius="full"
+            backgroundColor="gray.100"
+          ></Box>
+          <Text color="gray.100" fontSize="xs">
+            {user.following.length} following
+          </Text>
         </Flex>
-        <Text>This is BIO of jflsdfjdsklfjklsdfklsdklfsdlfjsldj</Text>
-        <Flex w={"full"} justifyContent={"space-between"} marginLeft={2}>
-            <Flex gap={2} alignItems={"center"}>
-            <Text color={"gray.light"} fontSize={"xs"}>
-                1,34,567 followers
-            </Text>
-            <Box
-                width={1}
-                height={1}
-                borderRadius={"full"}
-                backgroundColor={"gray.light"}
-            ></Box>
-            <Link color={"gray.light"}>Linked IN</Link>
-            </Flex>
-            <Flex>
-            <Box className="icon-container">
-                <Menu>
-                <MenuButton>
-                    <CgMoreO size={24} cursor={"pointer"} />
-                </MenuButton>
-                <Portal>
-                    <MenuList>
-                    <MenuItem onClick={shareURL}>Share Profile</MenuItem>
-                    <MenuItem onClick={editProfile}>Edit Profile</MenuItem>
-                    </MenuList>
-                </Portal>
-                </Menu>
-            </Box>
-            </Flex>
+        {/* <Link color="gray.100" href="#" textDecoration="underline">
+            LinkedIn
+          </Link> */}
+        <Flex>
+          <Box className="icon-container">
+            <Menu>
+              <MenuButton>
+                <CgMoreO size={24} cursor="pointer" />
+              </MenuButton>
+              <Portal>
+                <MenuList>
+                  <MenuItem onClick={shareURL}>Share Profile</MenuItem>
+                  <MenuItem onClick={editProfile}>Edit Profile</MenuItem>
+                </MenuList>
+              </Portal>
+            </Menu>
+          </Box>
         </Flex>
-        <Flex w={"full"}>
-            <Flex flex={1} borderBottom={"1.6px solid white"} justifyContent={"center"} pb={3} cursor={"pointer"}>
-                <Text fontWeight={"bold"}>Home</Text>
-            </Flex>
-            <Flex flex={1} borderBottom={"1px solid gray"} justifyContent={"center"} pb={3}  color={"gray.light"} cursor={"pointer"}>
-                <Text fontWeight={"bold"}>Explore</Text>
-            </Flex>
-        </Flex>
-        </VStack>
+      </Flex>
+    </Box>
     );
 };
 

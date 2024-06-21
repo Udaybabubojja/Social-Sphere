@@ -13,7 +13,7 @@ const UserPost = ({likes, replies, postImg, postTitle}) => {
     const postId = "post456";
 
     return (
-        <Flex gap={3} mb={4} py={5}>
+        <Flex gap={3} mb={4} py={5} p={4} mt={2}>
             <Flex flexDirection={'column'} alignItems={"center"}>
                 <Avatar size={"md"} name="Uday Babu" src='/vite.svg' />
                 <Box w={"1px"} h={"full"} bg="gray.light" my={2}></Box>
