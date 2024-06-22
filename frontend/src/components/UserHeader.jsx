@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useState } from "react";
 import {
   VStack,
   Box,
@@ -8,10 +8,15 @@ import {
   Text,
   Link,
   MenuButton,
-  Menu, Portal, MenuList, MenuItem, useToast
+  Menu, Portal, MenuList, MenuItem, useToast,
+  Button
 } from "@chakra-ui/react";
 import { CgMoreO } from "react-icons/cg";
 import { useNavigate } from "react-router";
+import { useRecoilState, useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
+import {Link as RouterLink} from "react-router-dom"
+import useShowToast from "../hooks/useShowToast";
 const UserHeader = ({user}) => {
     const toast = useToast()
     const shareURL = ()=>{
@@ -29,6 +34,46 @@ const UserHeader = ({user}) => {
     const navigate = useNavigate();
     const editProfile = () =>{
         navigate(`/update`)
+    }
+    const currentUser = useRecoilValue(userAtom);
+    const [following, setFollowing] = useState(user.followers.includes(currentUser.user._id))
+    const showToast = useShowToast()
+    const [updating, setUpdating] = useState(false);
+
+    const handleFollowandUnfollow = async ()=>{
+      if(!currentUser){
+        showToast("Error", "Please Login to Follow", "error");
+        return;
+      }
+      setUpdating(true)
+      try {
+        const res = await fetch(`/api/users/follow/${user._id}`,{
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+          },
+        })
+        const data = await res.json();
+        if(data.message){
+          showToast("Error", data.message, "error");
+          return;
+        }
+        console.log(data);
+        if(following){
+          showToast("Success", `unfollowed ${user.username}`, "success")
+          user.followers.pop();
+        }
+        else{
+          showToast("Success", `Followed ${user.username}`, "success")
+          user.followers.push(currentUser.user._id);
+        }
+        setFollowing(!following);
+      } catch (error) {
+        showToast("Error", error, "error")
+      }
+      finally{
+        setUpdating(false)
+      }
     }
     return (
         <Box
@@ -61,6 +106,11 @@ const UserHeader = ({user}) => {
         </Box>
       </Flex>
       <Text mt={3} fontStyle="italic">{user.bio}</Text>
+      {currentUser.user._id !== user._id && (
+          <Button onClick={handleFollowandUnfollow} isLoading={updating}>
+            {following ? "Unfollow": "Follow"}
+          </Button>
+      )}
       <Flex w="full" justifyContent="space-between" mt={5}>
         <Flex gap={2} alignItems="center">
           <Text color="gray.100" fontSize="xs">
@@ -88,7 +138,9 @@ const UserHeader = ({user}) => {
               <Portal>
                 <MenuList>
                   <MenuItem onClick={shareURL}>Share Profile</MenuItem>
-                  <MenuItem onClick={editProfile}>Edit Profile</MenuItem>
+                  {currentUser.user._id === user._id && (
+                    <MenuItem onClick={editProfile}>Edit Profile</MenuItem>
+                  )}
                 </MenuList>
               </Portal>
             </Menu>

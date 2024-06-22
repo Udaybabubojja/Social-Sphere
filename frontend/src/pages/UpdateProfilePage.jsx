@@ -37,8 +37,13 @@ export default function UpdateProfilePage() {
   };
 
   const showToast = useShowToast();
+  const [updating, setUpdating] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(updating) return;
+    setUpdating(true);
     try {
       const res = await fetch(`/api/users/update/${user.user._id}`, {
         method: "PUT",
@@ -53,15 +58,18 @@ export default function UpdateProfilePage() {
         return;
       }
       setUser(data);
+      
       showToast("Update", "Profile updated successfully", "success");
       localStorage.setItem("user-threads", JSON.stringify(data));
     } catch (error) {
       showToast("Error", error.message, 'error');
+    } finally {
+      setUpdating(false);
     }
   };
 
   const fileRef = useRef(null);
-  const { handleImageChange, imgUrl } = usePreviewImg();
+  const { handleImageChange, imgUrl } = usePreviewImg(setProfileLoading);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -89,10 +97,12 @@ export default function UpdateProfilePage() {
             <FormLabel>User Icon</FormLabel>
             <Stack direction={['column', 'row']} spacing={6}>
               <Center>
-                <Avatar size="xl" src={user.user.profilePic} />
+                <Avatar size="xl" src={imgUrl || user.user.profilePic} />
               </Center>
               <Center w="full">
-                <Button w="full" onClick={() => fileRef.current.click()}>Change Profile</Button>
+                <Button w="full" onClick={() => fileRef.current.click()} isLoading={profileLoading}>
+                  Change Profile
+                </Button>
                 <Input type='file' hidden ref={fileRef} onChange={handleImageChange} />
               </Center>
             </Stack>
@@ -172,6 +182,7 @@ export default function UpdateProfilePage() {
                 bg: 'blue.500',
               }}
               type="submit"
+              isLoading={updating}
             >
               Update Profile
             </Button>

@@ -4,13 +4,13 @@ import React, {useState, useEffect} from 'react'
 import { Link } from 'react-router-dom'
 import { useParams } from 'react-router';
 import useShowToast from '../hooks/useShowToast';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import userAtom from '../atoms/userAtom';
 const HomePage = () => {
-  const [user, setUser] = useRecoilState(userAtom);
+  const user = useRecoilValue(userAtom);
   return (
     <>
-      <Link to={`/${user.user.name}`}>
+      <Link to={`/${user.user.username}`}>
         <Flex w={"full"} justifyContent={"center"}>
             <Button mx={"auto"} >Visit profile page</Button>
         </Flex>
@@ -21,7 +21,6 @@ const HomePage = () => {
       </Flex>
       </Link>
     </>
-    
   )
 }
 

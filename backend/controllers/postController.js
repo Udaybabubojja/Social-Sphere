@@ -1,18 +1,26 @@
 import Post from "../models/postModel.js";
 import User from "../models/userModel.js"
-
+import {v2 as cloudinary } from "cloudinary"
 const createPost = async (req, res)=>{
     try{
         const {postedBy, text, img} = req.body;
+        let profilePic = img;
         if(!postedBy || !text) return res.status(400).json({message:"PostedBy and text fields are required!"})
         const user = await User.findById(postedBy);
         if(!user) return res.status(400).json({message:"User not found"})
         if(user._id.toString() !== req.user._id.toString()) return res.status(400).json({message:"Invalid Authorization!"}) 
         const maxLength=500;
         if(text.length >maxLength) return res.status(400).json({message:"Maximum length increased!!"})
+        if(profilePic){
+            if(user.profilePic){
+                await cloudinary.uploader.destroy(user.profilePic.split("/").pop().split(".")[0])
+            }
+            const uploadedResponse = await cloudinary.uploader.upload(profilePic);
+            profilePic = uploadedResponse.secure_url;
+        }
         const newPost = new Post({postedBy, text, img});
         await newPost.save();
-        return res.status(201).json({message:"Post created!!", newPost})
+        return res.status(201).json({status:"Post created!!", newPost})
     }catch(err){
         console.error(err);
         res.status(500).json({message:err.message})
@@ -106,4 +114,17 @@ const getFeed = async(req, res)=>{
     }
 }
 
-export {createPost, getPost, deletePost, likedPost, replyPost, getFeed}
+const userPosts = async (req, res)=>{
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId);
+        if(!user) return res.status(400).json({message:"Text field is required!!"});
+        const feedPosts = await Post.find({postedBy:userId});
+        res.status(200).json({feedPosts});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message:error.message})
+    }
+}
+
+export {createPost, getPost, deletePost, likedPost, replyPost, getFeed, userPosts}

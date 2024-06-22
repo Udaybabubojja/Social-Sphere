@@ -7,7 +7,7 @@ const usePreviewImg = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    
+
     if (file && file.type.match('image.*')) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -23,7 +23,7 @@ const usePreviewImg = () => {
   useEffect(() => {
   }, [imgUrl]);
 
-  return { handleImageChange, imgUrl };
+  return { handleImageChange, imgUrl, setImgUrl };
 };
 
 export default usePreviewImg;
