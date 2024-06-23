@@ -33,7 +33,7 @@ const signupUser = async (req, res) => {
 
         console.log(newUser);
         generateTokenAndSetCookie(newUser._id,res);
-        return res.status(201).json({ newUser, status: "User created successfully!" });
+        return res.status(201).json({ user:newUser, status: "User created successfully!" });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Server error" });
@@ -161,4 +161,16 @@ const getUserProfile = async(req, res)=>{
     }
 }
 
-export {signupUser, loginUser, logout, followAndUnfollow, updateUser, getUserProfile}
+const getUserDetails = async (req, res)=>{
+    try {
+        const userId = req.user._id;
+        let user = await User.findById(userId); // Add 'await' here
+        if (!user) return res.status(400).json({ message: "User not found" });
+        res.status(200).json(user)
+    } catch (error) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to load data" });
+    }
+}
+
+export {signupUser, loginUser, logout, followAndUnfollow, updateUser, getUserProfile, getUserDetails}

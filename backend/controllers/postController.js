@@ -109,22 +109,35 @@ const getFeed = async(req, res)=>{
         const feedPosts = await Post.find({postedBy:{$in:following}}).sort({createdAt: -1});
         res.status(200).json({feedPosts});
     } catch (error) {
-        console.error(error);
+        console.log(req)
         res.status(500).json({message:error.message})
     }
 }
 
-const userPosts = async (req, res)=>{
+const userPosts = async (req, res) => {
     try {
+        // Check if user ID exists in the request
         const userId = req.user._id;
+        if (!userId) {
+          return res.status(400).json({ message: "User not authenticated" });
+        }
         const user = await User.findById(userId);
-        if(!user) return res.status(400).json({message:"Text field is required!!"});
-        const feedPosts = await Post.find({postedBy:userId});
-        res.status(200).json({feedPosts});
-    } catch (error) {
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+    
+        // Find posts by user ID
+        const feedPosts = await Post.find({ postedBy: user._id });
+        if (!feedPosts || feedPosts.length === 0) {
+          return res.status(404).json({ message: "No posts found for this user" });
+        }
+    
+        // Send the posts as the response
+        res.status(200).json( feedPosts );
+      } catch (error) {
         console.error(error);
-        res.status(500).json({message:error.message})
-    }
-}
+        res.status(500).json({ message: error.message });
+      }
+};
 
 export {createPost, getPost, deletePost, likedPost, replyPost, getFeed, userPosts}

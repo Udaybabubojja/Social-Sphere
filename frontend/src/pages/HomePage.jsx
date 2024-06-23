@@ -8,6 +8,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import userAtom from '../atoms/userAtom';
 const HomePage = () => {
   const user = useRecoilValue(userAtom);
+  console.log(user)
   return (
     <>
       <Link to={`/${user.user.username}`}>
@@ -17,7 +18,7 @@ const HomePage = () => {
       </Link>
       <Link to={"/feed"}>
       <Flex w={"full"} padding={3} justifyContent={"center"}>
-          <Button mx={"auto"} >Home page</Button>
+          <Button mx={"auto"} >Feed(Home) page</Button>
       </Flex>
       </Link>
     </>

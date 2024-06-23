@@ -21,37 +21,46 @@ import { useSetRecoilState } from 'recoil'
 import authScreenAtom from '../atoms/authAtom'
 import useShowToast from '../hooks/useShowToast'
 import userAtom from '../atoms/userAtom'
+
 export default function LoginCard() {
   const [showPassword, setShowPassword] = useState(false)
-  const setAuthScreen = useSetRecoilState(authScreenAtom);
-  const setUser = useSetRecoilState(userAtom);
+  const [isLoading, setIsLoading] = useState(false)
+  const setAuthScreen = useSetRecoilState(authScreenAtom)
+  const setUser = useSetRecoilState(userAtom)
   const showToast = useShowToast()
   const [inputs, setInputs] = useState({
-    username:"",
-    password:""
+    username: "",
+    password: ""
   })
-  const handleLogin = async() =>{
+
+  const handleLogin = async () => {
+    setIsLoading(true)
     try {
-      const res = await fetch("/api/users/login",{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
+      const res = await fetch("/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body:JSON.stringify(inputs)
-      });
-      const data =await res.json();
-      console.log(data);
-      if(data.message){
+        body: JSON.stringify(inputs)
+      })
+      const data = await res.json()
+      console.log(data)
+      if (data.message) {
         showToast("Error", data.message, "error")
+        setIsLoading(false)
         return
       }
-      localStorage.setItem("user-threads", JSON.stringify(data));
-      setUser(data);
-      showToast("Sucess", data.status, "success");
+      localStorage.setItem("user-threads", JSON.stringify(data))
+      setUser(data)
+      showToast("Success", data.status, "success")
     } catch (error) {
-      console.log(error);
+      console.log(error)
+      showToast("Error", "Something went wrong", "error")
+    } finally {
+      setIsLoading(false)
     }
   }
+
   return (
     <Flex
       minH={'100vh'}
@@ -72,26 +81,23 @@ export default function LoginCard() {
           bg={useColorModeValue('white', 'gray.700')}
           boxShadow={'lg'}
           p={8}
-          w={
-            {
-              base:"full",
-              sm:"400px"
-            }
-          }
-          >
+          w={{
+            base: "full",
+            sm: "400px"
+          }}>
           <Stack spacing={4}>
             <FormControl id="username" isRequired>
               <FormLabel>Username</FormLabel>
-              <Input type="text" 
-                onChange={(e)=>setInputs({...inputs, username: e.target.value}) }
+              <Input type="text"
+                onChange={(e) => setInputs({ ...inputs, username: e.target.value })}
                 value={inputs.username}
               />
             </FormControl>
             <FormControl id="password" isRequired>
               <FormLabel>Password</FormLabel>
               <InputGroup>
-                <Input type={showPassword ? 'text' : 'password'} 
-                  onChange={(e)=>setInputs({...inputs, password: e.target.value}) }
+                <Input type={showPassword ? 'text' : 'password'}
+                  onChange={(e) => setInputs({ ...inputs, password: e.target.value })}
                   value={inputs.password}
                 />
                 <InputRightElement h={'full'}>
@@ -113,14 +119,15 @@ export default function LoginCard() {
                   bg: 'blue.500',
                 }}
                 onClick={handleLogin}
-                >
+                isLoading={isLoading}
+              >
                 Login
               </Button>
             </Stack>
             <Stack pt={6}>
               <Text align={'center'}>
-                Don&apos;t have account? <Link color={'blue.400'} 
-                onClick={()=>setAuthScreen("signup")}>signup</Link>
+                Don&apos;t have account? <Link color={'blue.400'}
+                  onClick={() => setAuthScreen("signup")}>signup</Link>
               </Text>
             </Stack>
           </Stack>
