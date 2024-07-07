@@ -41,13 +41,14 @@ const getPost = async (req, res)=>{
 const deletePost = async(req, res)=>{
     try {
         const post = await Post.findById(req.params.id);
+        console.log(post)
         if(!post){
             return res.status(404).json({message:"Post not Found!!"});
         }
         if(post.postedBy.toString() !== req.user._id.toString())
             return res.status(401).json({message:"You are not the owner of this post!"});
         await Post.findByIdAndDelete(req.params.id);
-        return res.status(200).json({message:"Post deleted!"});
+        return res.status(200).json({status:"Post deleted!"});
 
     } catch (error) {
         console.error(error);
@@ -57,20 +58,22 @@ const deletePost = async(req, res)=>{
 
 const likedPost = async(req, res)=>{
     try {
-        const {id:postId} = req.params;
+        const {id} = req.params;
         const userId = req.user._id;
-        const post = await Post.findById(postId);
+        console.log(userId)
+        const post = await Post.findById(id);
         if(!post){
             return res.status(404).json({message:"post not found"})
         }
         const userLikedPost = post.likes.includes(userId);
         if(userLikedPost){
-            await Post.updateOne({_id:postId},{$pull: {likes:userId}})
-            res.status(200).json({message:"post unliked !!"});
+            await Post.updateOne({_id:id},{$pull: {likes:userId}})
+            res.status(200).json({status:"post unliked !!", post: post.likes});
         }else{
             post.likes.push(userId);
+            console.log(post.likes)
             await post.save();
-            res.status(200).json({message:"post Liked!!!"})
+            res.status(200).json({status:"post Liked!!!", post:post.likes})
         }
     } catch (error) {
         console.error(error);
@@ -93,7 +96,7 @@ const replyPost = async (req,res)=>{
         const reply = {userId,text,userProfile, username};
         post.replies.push(reply);
         await post.save();
-        res.status(200).json({message:"Reply is added!", post});
+        res.status(200).json({status:"Reply is added!", post,reply});
     } catch (error) {
         console.error(error);
         res.status(500).json({message:err.message})
@@ -114,30 +117,58 @@ const getFeed = async(req, res)=>{
     }
 }
 
-const userPosts = async (req, res) => {
-    try {
-        // Check if user ID exists in the request
-        const userId = req.user._id;
-        if (!userId) {
-          return res.status(400).json({ message: "User not authenticated" });
+const getUserPosts = async (req, res) => {
+    try
+    {
+        const {username} = req.params
+        if (!username) {
+            return res.status(400).json({ message: "User not found!" });
         }
-        const user = await User.findById(userId);
+        const user = await User.findOne({username: username});
         if (!user) {
-          return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         }
-    
-        // Find posts by user ID
-        const feedPosts = await Post.find({ postedBy: user._id });
+        const feedPosts = await Post.find({ postedBy: user._id }).sort({createdAt:-1});
         if (!feedPosts || feedPosts.length === 0) {
-          return res.status(404).json({ message: "No posts found for this user" });
+            return res.status(404).json({ message: "No posts found for this user" });
         }
-    
-        // Send the posts as the response
         res.status(200).json( feedPosts );
-      } catch (error) {
+    }
+    catch (error) {
         console.error(error);
         res.status(500).json({ message: error.message });
-      }
+    }
 };
 
-export {createPost, getPost, deletePost, likedPost, replyPost, getFeed, userPosts}
+const exploreFeed = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        // Fetch feed posts excluding the user's own posts
+        let feedPosts = await Post.find({ postedBy: { $ne: userId } });
+
+        // Shuffle the feedPosts array
+        feedPosts = shuffleArray(feedPosts);
+
+        res.status(200).json({ feedPosts });
+    } catch (error) {
+        console.error("Error fetching feed posts:", error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+// Function to shuffle an array using Fisher-Yates (Knuth) Shuffle algorithm
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+export {createPost, getPost, deletePost, likedPost, replyPost, getFeed, getUserPosts, exploreFeed}

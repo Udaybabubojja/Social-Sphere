@@ -5,9 +5,10 @@ import connectDB from './db/connectDB.js';
 import userRoute from './routes/userRoute.js';
 import postRoute from './routes/postRoute.js';
 import { v2 as cloudinary } from 'cloudinary';
-
+import cors from "cors"
 dotenv.config();
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 4000;
 
 // MongoDB connection

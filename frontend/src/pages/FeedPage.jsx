@@ -6,29 +6,38 @@ import useShowToast from "../hooks/useShowToast";
 const FeedPage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("home"); // State to manage active tab
+  const [activeTab, setActiveTab] = useState("home");
   const showToast = useShowToast();
 
   useEffect(() => {
-    setLoading(true);
-    const getFeedPosts = async () => {
+    const getPosts = async () => {
+      setLoading(true);
       try {
-        const res = await fetch("/api/posts/feed");
+        let res;
+        if (activeTab === "home") {
+          res = await fetch("/api/posts/feed");
+        } else if (activeTab === "explore") {
+          res = await fetch("/api/posts/explore", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        }
         const data = await res.json();
         if (data.message) {
           showToast("Error", data.message, "error");
           return;
         }
-        console.log(data.feedPosts)
-        setPosts(data.feedPosts); // Set the posts data
+        setPosts(data.feedPosts);
       } catch (error) {
         showToast("Error", error.message, "error");
       } finally {
         setLoading(false);
       }
     };
-    getFeedPosts();
-  }, [showToast]);
+    getPosts();
+  }, [activeTab, showToast]);
 
   return (
     <>
@@ -39,7 +48,7 @@ const FeedPage = () => {
           justifyContent={"center"}
           pb={3}
           cursor={"pointer"}
-          onClick={() => setActiveTab("home")} // Set active tab to home
+          onClick={() => setActiveTab("home")}
         >
           <Text fontWeight={"bold"} color={activeTab === "home" ? "white" : "gray"}>
             Home
@@ -51,7 +60,7 @@ const FeedPage = () => {
           justifyContent={"center"}
           pb={3}
           cursor={"pointer"}
-          onClick={() => setActiveTab("explore")} // Set active tab to explore
+          onClick={() => setActiveTab("explore")}
         >
           <Text fontWeight={"bold"} color={activeTab === "explore" ? "white" : "gray"}>
             Explore
@@ -63,29 +72,18 @@ const FeedPage = () => {
         <Flex justifyContent="center" alignItems="center" height="100vh">
           <Spinner size="xl" />
         </Flex>
-      ) : activeTab === "home" ? (
+      ) : (
         <Flex direction="column" p={4}>
           {posts.length > 0 ? (
             posts.map((post) => (
               <UserPost
                 key={post._id}
-                likes={post.likes}
-                replies={post.replies}
-                postImg={post.img}
-                postTitle={post.text}
-                postedBy={post.postedBy}
-                createdAt={post.createdAt}
+                post={post}
               />
             ))
           ) : (
-            <Text>No posts available</Text>
+            <Text>No posts Yet!!!</Text>
           )}
-        </Flex>
-      ) : (
-        <Flex justifyContent="center" alignItems="center" height="100vh">
-          <Text fontSize="xl" color="gray.500">
-            Explore feature will be available soon.
-          </Text>
         </Flex>
       )}
     </>
