@@ -6,9 +6,11 @@ import {
   Text,
   Button,
   Spinner,
+  Link as ChakraLink,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useRecoilValue } from "recoil";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
 import { motion } from "framer-motion";
@@ -19,6 +21,10 @@ const UserFollowing = () => {
   const showToast = useShowToast();
   const [following, setFollowing] = useState([]);
   const [updating, setUpdating] = useState(false);
+
+  const textColor = useColorModeValue("gray.800", "gray.200");
+  const nameColor = useColorModeValue("gray.500", "gray.400");
+  const bgColor = useColorModeValue("white", "gray.700");
 
   useEffect(() => {
     const fetchFollowing = async () => {
@@ -81,15 +87,19 @@ const UserFollowing = () => {
             p={4}
             boxShadow="md"
             borderRadius="md"
-            bg="white"
+            bg={bgColor}
             display="flex"
             alignItems="center"
             justifyContent="space-between"
           >
             <Avatar name={user.username} src={user.profilePic} />
             <Box flex="1" ml={4}>
-              <Text fontSize="lg">{user.username}</Text>
-              <Text fontSize="sm" color="gray.500">
+              <ChakraLink as={Link} to={`/${user.username}`} textDecoration="none">
+                <Text fontSize="lg" color={textColor} _hover={{ textDecoration: "underline" }}>
+                  {user.username}
+                </Text>
+              </ChakraLink>
+              <Text fontSize="sm" color={nameColor}>
                 {user.name}
               </Text>
             </Box>

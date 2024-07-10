@@ -61,21 +61,23 @@ const UserPost = ({ post }) => {
   return (
     <Flex gap={3} mb={4} py={5} p={4} mt={2}>
       <Flex flexDirection="column" alignItems="center">
-        <Avatar size={{ base: 'sm', md: 'md' }} name={user ? user.username : 'Loading...'} src={user ? user.profilePic : ''} />
+        {user && (<ChakraLink as={Link} to={`/${user.username}`} textDecoration="none">
+          <Avatar size={{ base: 'sm', md: 'md' }} name={user ? user.username : 'Loading...'} src={user ? user.profilePic : ''} />
+        </ChakraLink>)}
         <Box w="1px" h="full" bg="gray.light" my={2}></Box>
         <Box position="relative" w="full" display="flex" justifyContent="center" mt={2}>
           {post.replies.length === 0 && <Text>😶‍🌫️</Text>}
           {replies.slice(0, 3).map((reply, index) => (
-            <Avatar
-              key={index}
-              name={`User${index}`}
-              size="xs"
-              src={reply.profilePic}
-              position="relative"
-              ml={index > 0 ? -2 : 0}
-              zIndex={3 - index}
-              border="2px solid white"
-            />
+              <Avatar
+                key={index}
+                name={`User${index}`}
+                size="xs"
+                src={reply.profilePic}
+                position="relative"
+                ml={index > 0 ? -2 : 0}
+                zIndex={3 - index}
+                border="2px solid white"
+              />
           ))}
         </Box>
       </Flex>
@@ -103,7 +105,11 @@ const UserPost = ({ post }) => {
             </ChakraLink>
           </Box>
         )}
-        {user && <Text fontSize={{ base: 'sm', md: 'md' }}>{post.text}</Text>}
+        {user && (
+          <ChakraLink as={Link} to={`/${user.username}/${post._id}`} textDecoration="none" >
+            <Text fontSize={{ base: 'sm', md: 'md' }}>{post.text}</Text>
+          </ChakraLink>
+        )}
         <Flex gap={3} my={1}>
           <Actions post={post} />
         </Flex>

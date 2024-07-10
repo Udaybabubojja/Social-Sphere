@@ -6,9 +6,11 @@ import {
   Text,
   Button,
   Spinner,
+  Link as ChakraLink,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useRecoilValue } from "recoil";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
 import { motion } from "framer-motion";
@@ -19,6 +21,9 @@ const UserFollowers = () => {
   const showToast = useShowToast();
   const [followers, setFollowers] = useState([]);
   const [updating, setUpdating] = useState(false);
+
+  const textColor = useColorModeValue("gray.800", "gray.200");
+  const nameColor = useColorModeValue("gray.500", "gray.400");
 
   useEffect(() => {
     const fetchFollowers = async () => {
@@ -85,15 +90,19 @@ const UserFollowers = () => {
             p={4}
             boxShadow="md"
             borderRadius="md"
-            bg="white"
+            bg={useColorModeValue("white", "gray.700")}
             display="flex"
             alignItems="center"
             justifyContent="space-between"
           >
             <Avatar name={follower.username} src={follower.profilePic} />
             <Box flex="1" ml={4}>
-              <Text fontSize="lg">{follower.username}</Text>
-              <Text fontSize="sm" color="gray.500">
+              <ChakraLink as={Link} to={`/${follower.username}`} textDecoration="none">
+                <Text fontSize="lg" color={textColor} _hover={{ textDecoration: "underline" }}>
+                  {follower.username}
+                </Text>
+              </ChakraLink>
+              <Text fontSize="sm" color={nameColor}>
                 {follower.name}
               </Text>
             </Box>

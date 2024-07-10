@@ -48,7 +48,6 @@ const CreatePostPage = () => {
     e.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
-
     try {
       const res = await fetch("/api/posts/create", {
         method: "POST",
@@ -64,10 +63,10 @@ const CreatePostPage = () => {
       const data = await res.json();
       if (data.message) {
         showToast("Error", data.message, "error");
-        return;
+      } else {
+        showToast("Success", data.message, "success");
+        navigate(`/${user.user.username}`);
       }
-      showToast("Success", data.message, "success");
-      navigate(`/${user.user.username}`);
     } catch (error) {
       showToast("Error", error.message, "error");
     } finally {
