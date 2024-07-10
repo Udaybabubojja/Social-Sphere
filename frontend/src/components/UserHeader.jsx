@@ -8,75 +8,82 @@ import {
   Text,
   Link,
   MenuButton,
-  Menu, Portal, MenuList, MenuItem, useToast,
+  Menu,
+  Portal,
+  MenuList,
+  MenuItem,
+  useToast,
   Button
 } from "@chakra-ui/react";
 import { CgMoreO } from "react-icons/cg";
 import { useNavigate } from "react-router";
 import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
-import {Link as RouterLink} from "react-router-dom"
+import { Link as RouterLink } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast";
-const UserHeader = ({user}) => {
-    const toast = useToast()
-    const shareURL = ()=>{
-        const currentURL = window.location.href;
-        navigator.clipboard.writeText(currentURL).then(()=>{
-            toast({
-                title: 'Pasted to clipboard',
-                description: "Profile URL copied to clipboard",
-                status: 'success',
-                duration: 3000,
-                isClosable: true,
-            })
-        })
-    }
-    const navigate = useNavigate();
-    const editProfile = () =>{
-        navigate(`/update`)
-    }
-    const currentUser = useRecoilValue(userAtom);
-    const [following, setFollowing] = useState(user.followers.includes(currentUser.user._id))
-    const showToast = useShowToast()
-    const [updating, setUpdating] = useState(false);
 
-    const handleFollowandUnfollow = async ()=>{
-      if(!currentUser){
-        showToast("Error", "Please Login to Follow", "error");
+const UserHeader = ({ user }) => {
+  const toast = useToast();
+
+  const shareURL = () => {
+    const currentURL = window.location.href;
+    navigator.clipboard.writeText(currentURL).then(() => {
+      toast({
+        title: 'Pasted to clipboard',
+        description: "Profile URL copied to clipboard",
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    });
+  };
+
+  const navigate = useNavigate();
+  const editProfile = () => {
+    navigate(`/update`);
+  };
+
+  const currentUser = useRecoilValue(userAtom);
+  const [following, setFollowing] = useState(user.followers.includes(currentUser.user._id));
+  const showToast = useShowToast();
+  const [updating, setUpdating] = useState(false);
+
+  const handleFollowandUnfollow = async () => {
+    if (!currentUser) {
+      showToast("Error", "Please Login to Follow", "error");
+      return;
+    }
+    setUpdating(true);
+    try {
+      const res = await fetch(`/api/users/follow/${user._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      if (data.message) {
+        showToast("Error", data.message, "error");
         return;
       }
-      setUpdating(true)
-      try {
-        const res = await fetch(`/api/users/follow/${user._id}`,{
-          method:"POST",
-          headers:{
-            "Content-Type":"application/json",
-          },
-        })
-        const data = await res.json();
-        if(data.message){
-          showToast("Error", data.message, "error");
-          return;
-        }
-        console.log(data);
-        if(following){
-          showToast("Success", `unfollowed ${user.username}`, "success")
-          user.followers.pop();
-        }
-        else{
-          showToast("Success", `Followed ${user.username}`, "success")
-          user.followers.push(currentUser.user._id);
-        }
-        setFollowing(!following);
-      } catch (error) {
-        showToast("Error", error, "error")
+      console.log(data);
+      if (following) {
+        showToast("Success", `unfollowed ${user.username}`, "success");
+        user.followers.pop();
+      } else {
+        showToast("Success", `Followed ${user.username}`, "success");
+        user.followers.push(currentUser.user._id);
       }
-      finally{
-        setUpdating(false)
-      }
+      setFollowing(!following);
+    } catch (error) {
+      showToast("Error", error, "error");
+    } finally {
+      setUpdating(false);
     }
-    return (
-        <Box
+  };
+
+  return (
+    <Box
       w="full"
       p={5}
       boxShadow="md"
@@ -90,7 +97,6 @@ const UserHeader = ({user}) => {
           <Flex gap={3} alignItems="center">
             <Text fontSize="small">{user.name}</Text>
           </Flex>
-          {/* <a href="tel:+919014698906">Hello world</a> */}
         </Box>
         <Box>
           <Avatar
@@ -107,28 +113,29 @@ const UserHeader = ({user}) => {
       </Flex>
       <Text mt={3} fontStyle="italic">{user.bio}</Text>
       {currentUser.user._id !== user._id && (
-          <Button onClick={handleFollowandUnfollow} isLoading={updating}>
-            {following ? "Unfollow": "Follow"}
-          </Button>
+        <Button onClick={handleFollowandUnfollow} isLoading={updating}>
+          {following ? "Unfollow" : "Follow"}
+        </Button>
       )}
       <Flex w="full" justifyContent="space-between" mt={5}>
         <Flex gap={2} alignItems="center">
-          <Text color="gray.100" fontSize="xs">
-            {user.followers.length} followers
-          </Text>
+          <RouterLink to={`/${user.username}/follow`}>
+            <Text color="gray.100" fontSize="xs">
+              {user.followers.length} followers
+            </Text>
+          </RouterLink>
           <Box
             width={1}
             height={1}
             borderRadius="full"
             backgroundColor="gray.100"
           ></Box>
-          <Text color="gray.100" fontSize="xs">
-            {user.following.length} following
-          </Text>
+          <RouterLink to={`/${user.username}/following`}>
+            <Text color="gray.100" fontSize="xs">
+              {user.following.length} following
+            </Text>
+          </RouterLink>
         </Flex>
-        {/* <Link color="gray.100" href="#" textDecoration="underline">
-            LinkedIn
-          </Link> */}
         <Flex>
           <Box className="icon-container">
             <Menu>
@@ -148,7 +155,7 @@ const UserHeader = ({user}) => {
         </Flex>
       </Flex>
     </Box>
-    );
+  );
 };
 
 export default UserHeader;

@@ -13,6 +13,8 @@ import CreatePost from "./components/CreatePost";
 import CreatePostPage from "./pages/CreatePostPage";
 import CancelButton from "./components/CancelButton"; // import the new CancelButton component
 import PostPage from "./pages/PostPage";
+import UserFollowers from "./pages/UserFollowers";
+import UserFollowing from "./pages/UserFollowing";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -29,6 +31,8 @@ function App() {
         <Route path="/feed" element={user ? <FeedPage /> : <Navigate to="/auth" />} />
         <Route path="/:username/createpost" element={user ? <CreatePostPage /> : <Navigate to="/auth" />} />
         <Route path="/:username/:postId" element={user ? <PostPage /> : <Navigate to="/auth" />} />
+        <Route path="/:username/follow" element={user ? <UserFollowers /> : <Navigate to="/auth" />} />
+        <Route path="/:username/following" element={user ? <UserFollowing /> : <Navigate to="/auth" />} />
       </Routes>
       {/* {user && <LogoutButton />} */}
       {user && (location.pathname.includes("/createpost") ? <CancelButton /> : <CreatePost user={user} />)}

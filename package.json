@@ -2,10 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "cross-env NODE_ENV=production nodemon backend/server.js",
+    "dev": "cross-env NODE_ENV=development nodemon backend/server.js",
+    "build": "cross-env npm install && npm install --prefix frontend && npm run build --prefix frontend"
   },
   "type": "module",
   "keywords": [],
@@ -24,6 +26,7 @@
     "mongoose": "^8.4.1"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "nodemon": "^3.1.3"
   }
 }
