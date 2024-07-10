@@ -7,7 +7,8 @@ import {
   replyPost,
   getFeed,
   getUserPosts,
-  exploreFeed
+  exploreFeed,
+  deleteComment // Import the new controller function
 } from '../controllers/postController.js';
 import { protectRoute } from '../middleware/protectRoute.js';
 
@@ -22,8 +23,7 @@ router.post("/create", protectRoute, createPost);
 router.put("/like/:id", protectRoute, likedPost);
 router.put("/reply/:id", protectRoute, replyPost);
 
-router.post("/:id", getPost);
-
 router.delete("/:id", protectRoute, deletePost);
+router.delete("/:postId/replies/:replyId", protectRoute, deleteComment); // Add this line
 
 export default router;

@@ -28,15 +28,16 @@ const Header = () => {
       <Flex display={{ base: 'none', md: 'flex' }}>
         {!isOpen && <DarkModeToggle />}
       </Flex>
-      <Text 
-        fontSize={{ base: 'md', md: '2xl' }} 
-        fontFamily="'Roboto', sans-serif" 
-        fontWeight="bold"
-        textAlign="center"
-        flex={{ base: '1', md: 'unset' }}
-      >
-        Social-Sphere
-      </Text>
+      <Link to="/" style={{ flex: '1', textAlign: 'center' }}>
+        <Text 
+          fontSize={{ base: 'md', md: '2xl' }} 
+          fontFamily="'Roboto', sans-serif" 
+          fontWeight="bold"
+          textAlign="center"
+        >
+          Social-Sphere
+        </Text>
+      </Link>
       <Flex display={{ base: 'none', md: 'flex' }}>
         <Link to="/feed">
           <IconButton
@@ -107,18 +108,18 @@ const Header = () => {
               </Button>
             </Link>
             {user && (
-              <Button
-                leftIcon={<FaSignOutAlt />}
-                variant="outline"
-                onClick={() => {
-                  onClose();
-                  // Handle logout here
-                }}
+              <LogoutButton
                 w="full"
                 justifyContent="flex-start"
+                onClick={() => {
+                  onClose();
+                }}
+                _hover={{
+                  animation: `${hoverAnimation} 0.2s ease-in-out forwards`,
+                }}
               >
                 Logout
-              </Button>
+              </LogoutButton>
             )}
           </DrawerBody>
         </DrawerContent>

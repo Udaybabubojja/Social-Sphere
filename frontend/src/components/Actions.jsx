@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRecoilValue } from "recoil";
 import useAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
+// import { useNavigate } from "react-router";
 
 const Actions = ({ post: post_ }) => {
   const user = useRecoilValue(useAtom);

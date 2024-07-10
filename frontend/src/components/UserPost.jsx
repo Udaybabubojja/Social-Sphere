@@ -7,6 +7,7 @@ import Actions from './Actions';
 
 const UserPost = ({ post }) => {
   const [user, setUser] = useState(null);
+  const [replies, setReplies] = useState([]);
   const showToast = useShowToast();
   const [loading, setLoading] = useState(true);
 
@@ -24,12 +25,33 @@ const UserPost = ({ post }) => {
       } catch (error) {
         console.error('Error fetching user details:', error);
         showToast('Error', 'Failed to fetch user details', 'error');
+      }
+    };
+
+    const fetchRepliesDetails = async () => {
+      try {
+        const repliesData = await Promise.all(
+          post.replies.map(async (reply) => {
+            const res = await fetch(`/api/users/${reply.userId}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+            return await res.json();
+          })
+        );
+        setReplies(repliesData);
+      } catch (error) {
+        console.error('Error fetching replies details:', error);
+        showToast('Error', 'Failed to fetch replies details', 'error');
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserDetails();
+    fetchRepliesDetails();
   }, [post, showToast]);
 
   const daysSincePosted = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
@@ -43,14 +65,14 @@ const UserPost = ({ post }) => {
         <Box w="1px" h="full" bg="gray.light" my={2}></Box>
         <Box position="relative" w="full" display="flex" justifyContent="center" mt={2}>
           {post.replies.length === 0 && <Text>😶‍🌫️</Text>}
-          {post.replies.slice(0, 3).map((reply, index) => (
+          {replies.slice(0, 3).map((reply, index) => (
             <Avatar
               key={index}
               name={`User${index}`}
-              size="xxs"
-              src={reply.userprofilePic}
+              size="xs"
+              src={reply.profilePic}
               position="relative"
-              ml={index > 0 ? -1 : 0}
+              ml={index > 0 ? -2 : 0}
               zIndex={3 - index}
               border="2px solid white"
             />

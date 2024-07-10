@@ -161,6 +161,32 @@ const exploreFeed = async (req, res) => {
     }
 };
 
+export const deleteComment = async (req, res) => {
+    try {
+      const { postId, replyId } = req.params;
+      const post = await Post.findById(postId);
+  
+      if (!post) {
+        return res.status(404).json({ message: "Post not found!" });
+      }
+  
+      const reply = post.replies.id(replyId);
+      if (!reply) {
+        return res.status(404).json({ message: "Comment not found!" });
+      }
+  
+      if (post.postedBy.toString() !== req.user._id.toString() && reply.userId.toString() !== req.user._id.toString()) {
+        return res.status(401).json({ message: "You are not authorized to delete this comment!" });
+      }
+  
+      post.replies.pull(replyId);
+      await post.save();
+      res.status(200).json({ status: "Comment deleted!" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  };
 
 // Function to shuffle an array using Fisher-Yates (Knuth) Shuffle algorithm
 function shuffleArray(array) {
